@@ -41,7 +41,7 @@ char *trim_white(char *line) {
 
 bool do_builtin(struct shell *sh, char **argv) {
 
-    return FALSE;
+    return false;
 
 }
 
@@ -60,5 +60,5 @@ void sh_destroy(struct shell *sh) {
 void parse_args(int argc, char **argv) {
 
 
-    
+
 }
