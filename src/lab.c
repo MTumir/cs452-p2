@@ -9,6 +9,8 @@
 
 #include "lab.h"
 #include <stdio.h>
+#include "readline/readline.h"
+#include "readline/history.h"
 
 char *get_prompt(const char *env) {
 
