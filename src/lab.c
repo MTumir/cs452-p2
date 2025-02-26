@@ -8,7 +8,6 @@
  */
 
 #include "lab.h"
-#include <stdio.h>
 #include <pwd.h>
 #include "readline/readline.h"
 #include "readline/history.h"
@@ -24,19 +23,19 @@ char *get_prompt(const char *env) {
 
 int change_dir(char **dir) {
 
-    // for (size_t i = 0; i < sizeof(dir); i ++) {
-    //     printf(dir[i]);
-    // }
-
     // If no args are provided
-    // if (!getenv("HOME") || !chdir(getenv("HOME"))) {
-    //     uid_t user_id = getuid();
-    //     struct passwd *user_pwd = getpwuid(user_id);
-    //     if (!getenv(user_pwd->pw_dir) || !chdir(getenv(user_pwd->pw_dir))) {
-    //         fprintf(stderr, "change_dir failed!\n");
-    //         return 1;
-    //     }
-    // }
+    if (!dir[1] && !chdir(getenv("HOME"))) {
+        uid_t user_id = getuid();
+        struct passwd *user_pwd = getpwuid(user_id);
+        if (!chdir(getenv(user_pwd->pw_dir))) {
+            fprintf(stderr, "change_dir failed!\n");
+            return 1;
+        }
+    } 
+    // If args are provided
+    else {
+        chdir(dir[1]);
+    }
 
     return 0;
 
@@ -48,6 +47,7 @@ char **cmd_parse(char const *line) {
     char *lineCopy = strdup(line);
     char *token = strtok(lineCopy, " ");
     
+    // Add tokens to cmdArray, delimited by space
     int i = 0;
     while (token != NULL) {
         cmdArray[i++] = token;
@@ -63,11 +63,23 @@ void cmd_free(char ** line) {
     for (size_t i = 0; !line[i]; i ++) {
         free(line[i]);
     }
-    // free(line);
+    free(*line);
 
 }
 
 char *trim_white(char *line) {
+
+    // Remove front whitespace
+    while (isspace(line[0])) {
+        line++;
+    }
+
+    // Remove back whitespace
+    char *tail = line + strlen(line) - 1;
+    while (isspace(tail[0])) {
+        tail--;
+    }
+    tail[1] = '\0';     // Add null char
 
     return line;
 
@@ -80,10 +92,10 @@ bool do_builtin(struct shell *sh, char **argv) {
     if (strcmp(command, "exit") == 0) {
         sh_destroy(sh);
         exit(0);
-    } if (strcmp(command, "cd")) {
-        change_dir(argv+1);
+    } if (strcmp(command, "cd") == 0) {
+        change_dir(argv);
         return true;
-    } if (strcmp(command, "history")) {
+    } if (strcmp(command, "history") == 0) {
 
         return true;
     }
