@@ -8,7 +8,10 @@
  */
 
 #include "lab.h"
+
 #include <pwd.h>
+#include <signal.h>
+
 #include "readline/readline.h"
 #include "readline/history.h"
 
@@ -32,6 +35,7 @@ int change_dir(char **dir) {
             return 1;
         }
     } 
+
     // If args are provided
     else {
         chdir(dir[1]);
@@ -49,21 +53,23 @@ char **cmd_parse(char const *line) {
     
     // Add tokens to cmdArray, delimited by space
     int i = 0;
-    while (token != NULL) {
-        cmdArray[i++] = token;
+    while (token) {
+        cmdArray[i++] = strdup(token);
         token = strtok(NULL, " ");
     }
 
+    cmdArray[i] = NULL;
+    free(lineCopy);
     return cmdArray;
 
 }
 
 void cmd_free(char ** line) {
 
-    for (size_t i = 0; !line[i]; i ++) {
+    for (size_t i = 0; line[i]; i ++) {
         free(line[i]);
     }
-    free(*line);
+    free(line);
 
 }
 
@@ -109,6 +115,14 @@ void sh_init(struct shell *sh) {
     sh->shell_terminal = STDIN_FILENO;
     sh->shell_is_interactive = isatty(sh->shell_terminal);
     sh->prompt = get_prompt("MY_PROMPT");
+    sh->shell_pgid = getpid();
+
+    // Signals to ignore
+    signal(SIGINT, SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+    signal(SIGTTIN, SIG_IGN);
+    signal(SIGTTOU, SIG_IGN);
 
 }
 
