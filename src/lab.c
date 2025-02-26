@@ -9,6 +9,7 @@
 
 #include "lab.h"
 #include <stdio.h>
+#include <pwd.h>
 #include "readline/readline.h"
 #include "readline/history.h"
 
@@ -23,22 +24,35 @@ char *get_prompt(const char *env) {
 
 int change_dir(char **dir) {
 
-    return -1;
+    // for (size_t i = 0; i < sizeof(dir); i ++) {
+    //     printf(dir[i]);
+    // }
+
+    // If no args are provided
+    // if (!getenv("HOME") || !chdir(getenv("HOME"))) {
+    //     uid_t user_id = getuid();
+    //     struct passwd *user_pwd = getpwuid(user_id);
+    //     if (!getenv(user_pwd->pw_dir) || !chdir(getenv(user_pwd->pw_dir))) {
+    //         fprintf(stderr, "change_dir failed!\n");
+    //         return 1;
+    //     }
+    // }
+
+    return 0;
 
 }
 
 char **cmd_parse(char const *line) {
 
-    // TODO limit length to sysconf
-
-    // char *line = readline("Enter something: ");
-    // long max = sysconf("ARGMAX");
-
-    // // TODO change 3
-    char **cmdArray = (char **)malloc(3 * sizeof(char *));
+    char **cmdArray = (char **)malloc(64 * sizeof(char *));
+    char *lineCopy = strdup(line);
+    char *token = strtok(lineCopy, " ");
     
-    cmdArray[0] = (char *)malloc(20 * sizeof(char));
-    strcpy(cmdArray[0], line);
+    int i = 0;
+    while (token != NULL) {
+        cmdArray[i++] = token;
+        token = strtok(NULL, " ");
+    }
 
     return cmdArray;
 
@@ -46,7 +60,10 @@ char **cmd_parse(char const *line) {
 
 void cmd_free(char ** line) {
 
-    free(*line); // TODO iterate thru string array
+    for (size_t i = 0; !line[i]; i ++) {
+        free(line[i]);
+    }
+    // free(line);
 
 }
 
@@ -64,9 +81,11 @@ bool do_builtin(struct shell *sh, char **argv) {
         sh_destroy(sh);
         exit(0);
     } if (strcmp(command, "cd")) {
-
+        change_dir(argv+1);
+        return true;
     } if (strcmp(command, "history")) {
 
+        return true;
     }
 
     return false;
