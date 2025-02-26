@@ -47,20 +47,20 @@ int change_dir(char **dir) {
 
 char **cmd_parse(char const *line) {
 
-    char **cmdArray = (char **)malloc(64 * sizeof(char *));
-    char *lineCopy = strdup(line);
-    char *token = strtok(lineCopy, " ");
+    char **cmd_array = (char **)malloc(64 * sizeof(char *));
+    char *line_copy = strdup(line);
+    char *token = strtok(line_copy, " ");
     
     // Add tokens to cmdArray, delimited by space
     int i = 0;
     while (token) {
-        cmdArray[i++] = strdup(token);
+        cmd_array[i++] = strdup(token);
         token = strtok(NULL, " ");
     }
 
-    cmdArray[i] = NULL;
-    free(lineCopy);
-    return cmdArray;
+    cmd_array[i] = NULL;
+    free(line_copy);
+    return cmd_array;
 
 }
 
@@ -102,7 +102,12 @@ bool do_builtin(struct shell *sh, char **argv) {
         change_dir(argv);
         return true;
     } if (strcmp(command, "history") == 0) {
-
+        HIST_ENTRY **list = history_list();
+        if (list) {
+            for (int i = 0; list[i]; i ++) {
+                printf ("%d: %s\n", i + history_base, list[i]->line);
+            }
+        }
         return true;
     }
 
