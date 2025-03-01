@@ -74,7 +74,7 @@ char **cmd_parse(char const *line) {
         token = strtok(NULL, " ");
     }
 
-    cmd_array[i] = NULL;
+    cmd_array[i] = '\0';    // CR- Ensure string has null char
     free(line_copy);
     return cmd_array;
 
